@@ -44,9 +44,12 @@ public class Client {
                 bytesFichier[(int) (Math.random() * bytesFichier.length)] = 0;
             }
 
+            String[] urlParts = lienFichier.split("\\\\");
+            String nomFichier = urlParts[urlParts.length - 1];
+
             CoucheApplication app = new CoucheApplication();
             // TODO: initialiser chaine de justin ici ou dans les constructeurs, a voir on est lazy
-            app.envoyerFichier(bytesFichier, adresseIP);
+            app.envoyerFichier(bytesFichier, nomFichier);
         } catch (Exception exception) {
             exception.printStackTrace();
         }

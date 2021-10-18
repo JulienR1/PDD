@@ -3,14 +3,20 @@ package com.app3;
 import java.util.Arrays;
 
 public class PDU extends Prototype {
+    private String nom;
     private byte[] content;
 
-    public PDU(byte[] contenuInitial) {
+    public PDU(String nom, byte[] contenuInitial) {
+        this.nom = nom;
         this.content = contenuInitial;
     }
 
     public byte[] getBytes() {
         return content.clone();
+    }
+
+    public String getNom() {
+        return nom;
     }
 
     public void ajouterEntete(byte[] entete) {
