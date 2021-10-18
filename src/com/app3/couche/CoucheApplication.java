@@ -1,4 +1,15 @@
 package com.app3.couche;
 
-public class CoucheApplication {
+import com.app3.PDU;
+
+public class CoucheApplication implements ICouche {
+    @Override
+    public void handle(PDU pdu) {
+        
+    }
+
+    @Override
+    public void setNextCouche(ICouche next) {
+
+    }
 }
