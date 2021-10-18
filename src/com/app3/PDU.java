@@ -5,6 +5,10 @@ import java.util.Arrays;
 public class PDU extends Prototype {
     private byte[] content;
 
+    public PDU(byte[] contenuInitial) {
+        this.content = contenuInitial;
+    }
+
     public byte[] getBytes() {
         return content.clone();
     }
