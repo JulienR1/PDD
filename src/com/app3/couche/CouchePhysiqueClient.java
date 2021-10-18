@@ -1,16 +1,19 @@
 package com.app3.couche;
 
-import java.net.DatagramSocket;
-import java.util.regex.Pattern;
+import com.app3.Constants;
 
-public class CouchePhysiqueClient extends CouchePhysique{
+import java.net.DatagramSocket;
+
+public class CouchePhysiqueClient extends CouchePhysique {
 
     /**
      * Couche physique du client
+     *
      * @param adresseIPServeur
      * @throws Exception
      */
     public CouchePhysiqueClient(String adresseIPServeur) throws Exception {
+        setPort(Constants.DEFAULT_SERVER_PORT);
         setIP(adresseIPServeur);
         socket = new DatagramSocket();
     }
