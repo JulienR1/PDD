@@ -10,6 +10,6 @@ public class CouchePhysiqueServeur extends CouchePhysique{
      * @throws SocketException
      */
     public CouchePhysiqueServeur() throws SocketException {
-        socket = new DatagramSocket(32035);
+        socket = new DatagramSocket(port);
     }
 }

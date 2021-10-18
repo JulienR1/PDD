@@ -11,13 +11,7 @@ public class CouchePhysiqueClient extends CouchePhysique{
      * @throws Exception
      */
     public CouchePhysiqueClient(String adresseIPServeur) throws Exception {
-
-        if(Pattern.matches("\\b\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\b", adresseIPServeur)){
-            this.adresseIPServeur = adresseIPServeur;
-        }
-        else{
-            throw new Exception("Entrer une adresse IP valide svp salope");
-        }
+        setIP(adresseIPServeur);
         socket = new DatagramSocket();
     }
 }
