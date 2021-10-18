@@ -1,6 +1,6 @@
 package com.app3;
 
-import com.app3.couche.CouchePhysiqueClient;
+import com.app3.couche.CouchePhysique;
 
 import java.nio.charset.StandardCharsets;
 
@@ -26,12 +26,12 @@ public class Client {
     }
 
     private static boolean televerser() {
-        try{
+        try {
             System.out.println("Televersement en cours");
-            CouchePhysiqueClient physique = new CouchePhysiqueClient("127.0.0.1");
+            CouchePhysique physique = new CouchePhysique("127.0.0.1");
             physique.sendRequete("allo".getBytes(StandardCharsets.UTF_8));
             byte[] caca = physique.getReponse();
-            System.out.println(new String(caca,0, caca.length));
+            System.out.println(new String(caca, 0, caca.length));
             physique.close();
         } catch (Exception exception) {
             exception.printStackTrace();

@@ -1,7 +1,6 @@
 package com.app3;
 
 import com.app3.couche.CouchePhysique;
-import com.app3.couche.CouchePhysiqueServeur;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -20,7 +19,7 @@ public class ServeurThread extends Thread {
     public void run() {
         CouchePhysique physique = null;
         try {
-            physique = new CouchePhysiqueServeur();
+            physique = new CouchePhysique();
             while (true) {
                 byte[] caca = physique.getReponse();
                 System.out.println(new String(caca, 0, caca.length));

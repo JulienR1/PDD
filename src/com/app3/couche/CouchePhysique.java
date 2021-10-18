@@ -1,14 +1,14 @@
 package com.app3.couche;
 
+import com.app3.Constants;
+import com.app3.CoucheException;
 import com.app3.PDU;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
+import java.net.*;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-public abstract class CouchePhysique implements ICouche {
+public class CouchePhysique implements ICouche {
 
     private InetAddress adresseIPDestination;
     private int portDestination;
@@ -25,20 +25,34 @@ public abstract class CouchePhysique implements ICouche {
         //TODO
     }
 
-    protected void setIP(InetAddress ip) throws Exception {
-        this.adresseIPDestination = ip;
+    public CouchePhysique() throws SocketException {
+        socket = new DatagramSocket(Constants.DEFAULT_SERVER_PORT);
     }
 
-    protected void setIP(String ip) throws Exception {
-        if (Pattern.matches("\\b\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\b", ip)) {
-            setIP(InetAddress.getByName(ip));
-        } else {
-            throw new Exception("Entrer une adresse IP valide svp salope");
-        }
+    public CouchePhysique(String ipInitiale) throws SocketException, CoucheException {
+        setPort(Constants.DEFAULT_SERVER_PORT);
+        setIP(ipInitiale);
+        socket = new DatagramSocket();
     }
 
     protected void setPort(int port) {
         this.portDestination = port;
+    }
+
+    protected void setIP(InetAddress ip) {
+        this.adresseIPDestination = ip;
+    }
+
+    protected void setIP(String ip) throws CoucheException {
+        try {
+            if (Pattern.matches("\\b\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\b", ip)) {
+                setIP(InetAddress.getByName(ip));
+            } else {
+                throw new CoucheException("L'adresse IP saisie ne respecte pas le format attendu.");
+            }
+        } catch (UnknownHostException ex) {
+            throw new CoucheException(ex.getMessage());
+        }
     }
 
     public byte[] getReponse() throws Exception {
