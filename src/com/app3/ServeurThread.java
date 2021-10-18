@@ -3,7 +3,6 @@ package com.app3;
 import com.app3.couche.CouchePhysique;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
 public class ServeurThread extends Thread {
@@ -25,8 +24,6 @@ public class ServeurThread extends Thread {
                 System.out.println(new String(caca, 0, caca.length));
                 physique.sendRequete("Bonjour, mon beau jeune homme!!!".getBytes(StandardCharsets.UTF_8));
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

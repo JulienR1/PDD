@@ -10,10 +10,34 @@ import java.util.regex.Pattern;
 
 public class CouchePhysique implements ICouche {
 
+    private DatagramSocket socket;
     private InetAddress adresseIPDestination;
     private int portDestination;
 
-    protected DatagramSocket socket;
+    /**
+     * Genere une couche physique qui ecoutera sur le port par defaut.
+     * Ce constructeur devrait etre utilise principalement pour la couche physique d'un serveur.
+     *
+     * @throws SocketException
+     * @see Constants
+     */
+    public CouchePhysique() throws SocketException {
+        socket = new DatagramSocket(Constants.DEFAULT_SERVER_PORT);
+    }
+
+    /**
+     * Genere une couche physique qui essayera de se connecter a un serveur sur l'ip fourni.
+     * Ce constructeur devrait etre utilise principalement pour la couche physique d'un client.
+     *
+     * @param ipInitiale
+     * @throws SocketException
+     * @throws CoucheException
+     */
+    public CouchePhysique(String ipInitiale) throws SocketException, CoucheException {
+        setPort(Constants.DEFAULT_SERVER_PORT);
+        setIP(ipInitiale);
+        socket = new DatagramSocket();
+    }
 
     @Override
     public void handle(PDU pdu) {
@@ -25,25 +49,15 @@ public class CouchePhysique implements ICouche {
         //TODO
     }
 
-    public CouchePhysique() throws SocketException {
-        socket = new DatagramSocket(Constants.DEFAULT_SERVER_PORT);
-    }
-
-    public CouchePhysique(String ipInitiale) throws SocketException, CoucheException {
-        setPort(Constants.DEFAULT_SERVER_PORT);
-        setIP(ipInitiale);
-        socket = new DatagramSocket();
-    }
-
-    protected void setPort(int port) {
+    private void setPort(int port) {
         this.portDestination = port;
     }
 
-    protected void setIP(InetAddress ip) {
+    private void setIP(InetAddress ip) {
         this.adresseIPDestination = ip;
     }
 
-    protected void setIP(String ip) throws CoucheException {
+    private void setIP(String ip) throws CoucheException {
         try {
             if (Pattern.matches("\\b\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\b", ip)) {
                 setIP(InetAddress.getByName(ip));
