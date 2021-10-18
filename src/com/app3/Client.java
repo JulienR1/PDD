@@ -1,5 +1,9 @@
 package com.app3;
 
+import com.app3.couche.CouchePhysiqueClient;
+
+import java.nio.charset.StandardCharsets;
+
 public class Client {
 
     private static ChoixMenu[] choixMenu =
@@ -22,7 +26,16 @@ public class Client {
     }
 
     private static boolean televerser() {
-        System.out.println("Televersement en cours");
+        try{
+            System.out.println("Televersement en cours");
+            CouchePhysiqueClient physique = new CouchePhysiqueClient("127.0.0.1");
+            physique.sendRequete("allo".getBytes(StandardCharsets.UTF_8));
+            byte[] caca = physique.getReponse();
+            System.out.println(new String(caca,0, caca.length));
+            physique.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
         return true;
     }
 

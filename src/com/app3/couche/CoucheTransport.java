@@ -12,4 +12,9 @@ public class CoucheTransport implements ICouche{
     public void setNextCouche(ICouche next) {
 
     }
+
+    @Override
+    public void close() {
+
+    }
 }

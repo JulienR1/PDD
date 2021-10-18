@@ -7,6 +7,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.util.Arrays;
 import java.util.function.ToDoubleBiFunction;
 import java.util.regex.Pattern;
 
@@ -16,7 +17,7 @@ public abstract class CouchePhysique implements ICouche{
 
     protected DatagramSocket socket;
 
-    protected int port = 32035;
+    final protected int port = 32035;
 
     @Override
     public void handle(PDU pdu) {
@@ -47,13 +48,16 @@ public abstract class CouchePhysique implements ICouche{
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
         setIP(packet.getAddress());
-        return packet.getData();
+        return Arrays.copyOf(packet.getData(),packet.getLength());
     }
-    public byte[] sendRequete () throws IOException {
-        byte[]buf = new byte[200];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, adresseIPDestination, port);
-        socket.receive(packet);
-        return packet.getData();
+    public void sendRequete (byte[]buf ) throws Exception {
+        if(buf.length <= 200){
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, adresseIPDestination, port);
+            socket.send(packet);
+        }else{
+            throw new Exception("Mange dla marde");
+        }
+
     }
 
     @Override
