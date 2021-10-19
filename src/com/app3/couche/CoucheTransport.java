@@ -108,6 +108,7 @@ public class CoucheTransport extends Couche {
             if (entete.getNumerotation() == tousLesPaquets.length) {
                 PDU fichier = reconstruireFichier();
                 couchePrecedente.handle(fichier, true);
+                reinitialiserCouche();
             }
         }
         accuseReception(entete.getNumerotation());
