@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 
 public class CoucheApplication implements ICouche {
     @Override
-    public void handle(PDU pdu) throws Exception {
+    public void handle(PDU pdu, boolean estReception) throws Exception {
         //TODO
     }
 
@@ -18,7 +18,7 @@ public class CoucheApplication implements ICouche {
 
     public void envoyerFichier(byte[] fichier, String nom) throws Exception {
         // TODO
-        handle(new PDU(nom, fichier));
+        handle(new PDU(nom, fichier), false);
     }
 
 

@@ -40,7 +40,7 @@ public class CouchePhysique implements ICouche {
     }
 
     @Override
-    public void handle(PDU pdu) {
+    public void handle(PDU pdu, boolean estReception) {
         //TODO
     }
 

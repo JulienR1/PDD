@@ -16,7 +16,7 @@ public class CoucheLiaison implements ICouche {
     }
 
     @Override
-    public void handle(PDU pdu) {
+    public void handle(PDU pdu, boolean estReception) {
         //TODO
 
     }
@@ -62,6 +62,6 @@ public class CoucheLiaison implements ICouche {
 
     @Override
     public void close() {
-        
+
     }
 }
