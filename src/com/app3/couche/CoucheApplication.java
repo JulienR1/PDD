@@ -21,7 +21,7 @@ public class CoucheApplication extends Couche {
 
     public void sauvegarderFichier(byte[] contenuFichier, String nom) {
         try {
-            FileOutputStream outputStream = new FileOutputStream("reception/" + nom);
+            FileOutputStream outputStream = new FileOutputStream(nom);
             outputStream.write(contenuFichier);
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -1,6 +1,5 @@
 package com.app3;
 
-import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -10,10 +9,10 @@ import java.util.Map;
 public class EnteteTransport {
     public static final int GROSSEUR_ENTETE = 20;
 
-    private static HashMap<TypeTransmission, String> types;
+    private static final HashMap<TypeTransmission, String> types;
 
     static {
-        HashMap<TypeTransmission, String> types = new HashMap<>();
+        types = new HashMap<>();
         types.put(TypeTransmission.TRANSMISSION, "ENVOI");
         types.put(TypeTransmission.ACCUSE_RECEPTION, "RECU");
         types.put(TypeTransmission.DEMANDE_RETRANSMISSION, "RETRANS");
@@ -32,16 +31,20 @@ public class EnteteTransport {
         }
 
         entete = new byte[GROSSEUR_ENTETE];
-        System.arraycopy(entete, 0, EnteteTransport.types.get(type).getBytes(StandardCharsets.UTF_8), 0, 8);
-        System.arraycopy(entete, 0, intToBytes(numerotation), 8, 4);
-        System.arraycopy(entete, 0, intToBytes(quantitePaquets), 12, 4);
-        System.arraycopy(entete, 0, intToBytes(tailleOctets + GROSSEUR_ENTETE), 16, 4);
+        byte[] paddedTypeBytes = new byte[8];
+        byte[] typeBytes = EnteteTransport.types.get(type).getBytes(StandardCharsets.UTF_8);
+        System.arraycopy(typeBytes, 0, paddedTypeBytes, 0, Math.min(typeBytes.length, 8));
+
+        System.arraycopy(paddedTypeBytes, 0, entete, 0, 8);
+        System.arraycopy(intToBytes(numerotation), 0, entete, 8, 4);
+        System.arraycopy(intToBytes(quantitePaquets), 0, entete, 12, 4);
+        System.arraycopy(intToBytes(tailleOctets + GROSSEUR_ENTETE), 0, entete, 16, 4);
     }
 
     public EnteteTransport(PDU paquet) throws Exception {
         PDU clone = paquet.clone();
         entete = clone.enleverEntete(GROSSEUR_ENTETE);
-        type = new String(Arrays.copyOfRange(entete, 0, 8));
+        type = new String(Arrays.copyOfRange(entete, 0, 8)).replaceAll("([^A-Za-z])", "");
         numerotation = ByteBuffer.wrap(Arrays.copyOfRange(entete, 8, 12)).getInt();
         quantitePaquets = ByteBuffer.wrap(Arrays.copyOfRange(entete, 12, 16)).getInt();
         taille = ByteBuffer.wrap(Arrays.copyOfRange(entete, 16, 20)).getInt();

@@ -64,7 +64,8 @@ public class Client {
 
             CoucheApplication app = initialiserCouches(adresseIP);
             app.envoyerFichier(bytesFichier, nomFichier);
-            app.close();
+            // TODO: close le socket quand la transmission est terminee
+//            app.close();
         } catch (Exception exception) {
             exception.printStackTrace();
         }

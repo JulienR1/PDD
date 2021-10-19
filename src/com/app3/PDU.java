@@ -2,7 +2,7 @@ package com.app3;
 
 import java.util.Arrays;
 
-public class PDU extends Prototype {
+public class PDU implements Prototype {
     private String nom;
     private byte[] content;
 
@@ -38,8 +38,7 @@ public class PDU extends Prototype {
         return entete;
     }
 
-    @Override
     public PDU clone() {
-        return (PDU) super.clone();
+        return new PDU(this.getNom(), getBytes());
     }
 }

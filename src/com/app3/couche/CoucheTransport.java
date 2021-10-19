@@ -58,21 +58,23 @@ public class CoucheTransport extends Couche {
     private void subdiviserPaquet(PDU pdu) throws Exception {
         byte[] bytes = pdu.getBytes();
         int taillePaquet = 200 - EnteteTransport.GROSSEUR_ENTETE;
-        int quantiteDePaquets = (int) Math.ceil(bytes.length / taillePaquet) + 1;
+        int quantiteDePaquets = (int) Math.ceil(bytes.length / (double) taillePaquet);
+        tousLesPaquets = new PDU[quantiteDePaquets + 1];
 
         // Paquet nom du fichier
         PDU paquetNom = new PDU(pdu.getNom(), pdu.getNom().getBytes(StandardCharsets.UTF_8));
-        EnteteTransport enteteNom = new EnteteTransport(TypeTransmission.TRANSMISSION, 1, quantiteDePaquets, paquetNom.getBytes().length);
+        EnteteTransport enteteNom = new EnteteTransport(TypeTransmission.TRANSMISSION, 1, tousLesPaquets.length, paquetNom.getBytes().length);
         paquetNom.ajouterEntete(enteteNom.getBytes());
         tousLesPaquets[0] = paquetNom;
 
         // Paquets contenu
-        for (int i = 0; i < bytes.length; i += taillePaquet) {
+        for (int i = 0; i < quantiteDePaquets; i++) {
             byte[] bytesDansPaquet = Arrays.copyOfRange(bytes, i * taillePaquet, Math.min(bytes.length, (i + 1) * taillePaquet));
             PDU paquet = new PDU(pdu.getNom(), bytesDansPaquet);
 
-            EnteteTransport entete = new EnteteTransport(TypeTransmission.TRANSMISSION, i + 1, quantiteDePaquets, paquet.getBytes().length);
+            EnteteTransport entete = new EnteteTransport(TypeTransmission.TRANSMISSION, i + 2, tousLesPaquets.length, paquet.getBytes().length);
             paquet.ajouterEntete(entete.getBytes());
+
 
             tousLesPaquets[i + 1] = paquet;
         }
@@ -80,6 +82,9 @@ public class CoucheTransport extends Couche {
 
     private void recevoir(PDU paquet) throws Exception {
         EnteteTransport entete = new EnteteTransport(paquet);
+        PDU clone = paquet.clone();
+        clone.enleverEntete(EnteteTransport.GROSSEUR_ENTETE);
+
 
         if (entete.getType() == TypeTransmission.ACCUSE_RECEPTION) {
             recevoirAccuseReception(entete.getNumerotation());
@@ -92,7 +97,7 @@ public class CoucheTransport extends Couche {
 
     private void recevoirTransmission(EnteteTransport entete, PDU paquet) throws Exception {
         // Quitter si on a deja recu le paquet en question
-        if (tousLesPaquets[entete.getNumerotation() - 1] != null) {
+        if (tousLesPaquets != null && tousLesPaquets[entete.getNumerotation() - 1] != null) {
             return;
         }
 
@@ -168,7 +173,7 @@ public class CoucheTransport extends Couche {
         if (numerotationAValider == 1) {
             return true;
         }
-        return tousLesPaquets[numerotationAValider] != null;
+        return tousLesPaquets[numerotationAValider - 1] != null;
     }
 
 
@@ -180,7 +185,7 @@ public class CoucheTransport extends Couche {
 
     private void demandeRetransmission(int numeroARedemander) throws Exception {
         EnteteTransport entete = new EnteteTransport(TypeTransmission.DEMANDE_RETRANSMISSION, numeroARedemander, tousLesPaquets.length, 0);
-        PDU paquetReponse = new PDU(tousLesPaquets[0].getNom(), entete.getBytes());
+        PDU paquetReponse = new PDU(tousLesPaquets[numeroARedemander - 1].getNom(), entete.getBytes());
         coucheSuivante.handle(paquetReponse, false);
     }
 

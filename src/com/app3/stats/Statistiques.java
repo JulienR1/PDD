@@ -19,6 +19,6 @@ public class Statistiques {
     }
 
     public void augmenterEnregistrement(StatRecord enregistrement) {
-        stats.put(enregistrement, stats.get(enregistrement) + 1);
+        stats.put(enregistrement, stats.get(enregistrement) != null ? stats.get(enregistrement) + 1 : 0);
     }
 }

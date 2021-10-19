@@ -23,7 +23,7 @@ public class CouchePhysique extends Couche {
      */
     public CouchePhysique() throws SocketException {
         socket = new DatagramSocket(Constants.DEFAULT_SERVER_PORT);
-        new CouchePhysiqueThread(this).run();
+        initialiserThreadReponses();
     }
 
     /**
@@ -38,6 +38,20 @@ public class CouchePhysique extends Couche {
         setPort(Constants.DEFAULT_SERVER_PORT);
         setIP(ipInitiale);
         socket = new DatagramSocket();
+        initialiserThreadReponses();
+    }
+
+    private void initialiserThreadReponses() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    byte[] reponse = getReponse();
+                    handle(new PDU(null, reponse), true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
