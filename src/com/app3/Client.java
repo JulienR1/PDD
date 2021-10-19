@@ -1,6 +1,7 @@
 package com.app3;
 
 import com.app3.couche.*;
+import com.app3.stats.Statistiques;
 
 import java.net.SocketException;
 import java.nio.file.Files;
@@ -43,6 +44,7 @@ public class Client {
     }
 
     private static boolean televerser(boolean avecErreurs) {
+        GestionnaireErreur.Instance().setEstErreur(avecErreurs);
         try {
             Scanner scanner = new Scanner(System.in);
 
@@ -55,17 +57,12 @@ public class Client {
             String lienFichier = scanner.nextLine();
 
             byte[] bytesFichier = Files.readAllBytes(Paths.get(lienFichier));
-            if (avecErreurs) {
-                bytesFichier[(int) (Math.random() * bytesFichier.length)] = 0;
-            }
 
             String[] urlParts = lienFichier.split("\\\\");
             String nomFichier = urlParts[urlParts.length - 1];
 
             CoucheApplication app = initialiserCouches(adresseIP);
             app.envoyerFichier(bytesFichier, nomFichier);
-            // TODO: close le socket quand la transmission est terminee
-//            app.close();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
@@ -73,6 +70,7 @@ public class Client {
     }
 
     private static boolean quitter() {
+        System.out.println(Statistiques.Instance().toString());
         System.out.println("Fermeture en cours..");
         return false;
     }

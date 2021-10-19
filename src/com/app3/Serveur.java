@@ -1,6 +1,7 @@
 package com.app3;
 
 import com.app3.couche.*;
+import com.app3.stats.Statistiques;
 
 import java.io.IOException;
 
@@ -21,5 +22,7 @@ public class Serveur {
         System.out.println("Appuyer sur entrée pour arreter le serveur...");
         System.in.read();
         app.close();
+
+        System.out.println(Statistiques.Instance().toString());
     }
 }
