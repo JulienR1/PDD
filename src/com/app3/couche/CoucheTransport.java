@@ -101,6 +101,7 @@ public class CoucheTransport extends Couche {
             return;
         }
 
+        boolean finTransmission = false;
         if (entete.getNumerotation() == 1) {
             recevoirPremierPaquet(entete, paquet);
         } else {
@@ -108,10 +109,14 @@ public class CoucheTransport extends Couche {
             if (entete.getNumerotation() == tousLesPaquets.length) {
                 PDU fichier = reconstruireFichier();
                 couchePrecedente.handle(fichier, true);
-                reinitialiserCouche();
+                finTransmission = true;
             }
         }
         accuseReception(entete.getNumerotation());
+
+        if (finTransmission) {
+            reinitialiserCouche();
+        }
     }
 
     private PDU reconstruireFichier() throws Exception {
