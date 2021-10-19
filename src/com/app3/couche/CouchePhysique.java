@@ -8,7 +8,7 @@ import java.net.*;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-public class CouchePhysique implements ICouche {
+public class CouchePhysique extends Couche {
 
     private DatagramSocket socket;
     private InetAddress adresseIPDestination;
@@ -23,6 +23,7 @@ public class CouchePhysique implements ICouche {
      */
     public CouchePhysique() throws SocketException {
         socket = new DatagramSocket(Constants.DEFAULT_SERVER_PORT);
+        new CouchePhysiqueThread(this).run();
     }
 
     /**
@@ -40,13 +41,12 @@ public class CouchePhysique implements ICouche {
     }
 
     @Override
-    public void handle(PDU pdu, boolean estReception) {
-        //TODO
-    }
-
-    @Override
-    public void setNextCouche(ICouche next) {
-        //TODO
+    public void handle(PDU pdu, boolean estReception) throws Exception {
+        if (estReception) {
+            couchePrecedente.handle(pdu, true);
+        } else {
+            sendRequete(pdu.getBytes());
+        }
     }
 
     private void setPort(int port) {

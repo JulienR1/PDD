@@ -4,20 +4,17 @@ import com.app3.PDU;
 
 import java.io.FileOutputStream;
 
-public class CoucheApplication implements ICouche {
+public class CoucheApplication extends Couche {
     @Override
     public void handle(PDU pdu, boolean estReception) throws Exception {
-        //TODO
+        if (estReception) {
+            sauvegarderFichier(pdu.getBytes(), pdu.getNom());
+        } else {
+            coucheSuivante.handle(pdu, false);
+        }
     }
-
-    @Override
-    public void setNextCouche(ICouche next) {
-        //TODO
-    }
-
 
     public void envoyerFichier(byte[] fichier, String nom) throws Exception {
-        // TODO
         handle(new PDU(nom, fichier), false);
     }
 
@@ -33,6 +30,5 @@ public class CoucheApplication implements ICouche {
 
     @Override
     public void close() {
-        //TODO
     }
 }

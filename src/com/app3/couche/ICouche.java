@@ -5,7 +5,7 @@ import com.app3.PDU;
 public interface ICouche {
     void handle(PDU pdu, boolean estReception) throws Exception;
 
-    void setNextCouche(ICouche next);
+    void setCouchesVoisines(ICouche precedente, ICouche suivante);
 
     void close();
 }

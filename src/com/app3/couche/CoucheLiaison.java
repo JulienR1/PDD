@@ -8,22 +8,17 @@ import com.app3.stats.Statistiques;
 
 import java.nio.ByteBuffer;
 
-public class CoucheLiaison implements ICouche {
-    ICouche nextCouche;
-
-    public CoucheLiaison() {
-
-    }
+public class CoucheLiaison extends Couche {
 
     @Override
-    public void handle(PDU pdu, boolean estReception) {
-        //TODO
-
-    }
-
-    @Override
-    public void setNextCouche(ICouche next) {
-        //TODO
+    public void handle(PDU pdu, boolean estReception) throws Exception {
+        if (estReception) {
+            PDU pduSansCRC = retirerCRC(pdu);
+            couchePrecedente.handle(pduSansCRC, true);
+        } else {
+            PDU pduAvecCRC = ajouteCRC(pdu);
+            coucheSuivante.handle(pduAvecCRC, false);
+        }
     }
 
     private PDU ajouteCRC(PDU _pdu) {
@@ -53,6 +48,7 @@ public class CoucheLiaison implements ICouche {
                 return pdu;
             }
             // TODO
+            Log.enregistrer("CRC invalide");
             throw new Exception("CRC invalide");
         } catch (Exception ex) {
             Statistiques.Instance().augmenterEnregistrement(StatRecord.QUANTITE_ERREUR);

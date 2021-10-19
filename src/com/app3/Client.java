@@ -1,7 +1,8 @@
 package com.app3;
 
-import com.app3.couche.CoucheApplication;
+import com.app3.couche.*;
 
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
@@ -27,6 +28,20 @@ public class Client {
         }
     }
 
+    private static CoucheApplication initialiserCouches(String ipServeur) throws SocketException, CoucheException {
+        CoucheApplication app = new CoucheApplication();
+        ICouche transport = new CoucheTransport();
+        ICouche liaison = new CoucheLiaison();
+        ICouche physique = new CouchePhysique(ipServeur);
+
+        app.setCouchesVoisines(null, transport);
+        transport.setCouchesVoisines(app, liaison);
+        liaison.setCouchesVoisines(transport, physique);
+        physique.setCouchesVoisines(liaison, null);
+
+        return app;
+    }
+
     private static boolean televerser(boolean avecErreurs) {
         try {
             Scanner scanner = new Scanner(System.in);
@@ -47,9 +62,9 @@ public class Client {
             String[] urlParts = lienFichier.split("\\\\");
             String nomFichier = urlParts[urlParts.length - 1];
 
-            CoucheApplication app = new CoucheApplication();
-            // TODO: initialiser chaine de justin ici ou dans les constructeurs, a voir on est lazy
+            CoucheApplication app = initialiserCouches(adresseIP);
             app.envoyerFichier(bytesFichier, nomFichier);
+            app.close();
         } catch (Exception exception) {
             exception.printStackTrace();
         }
