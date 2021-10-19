@@ -43,10 +43,12 @@ public class CouchePhysique extends Couche {
 
     private void initialiserThreadReponses() {
         new Thread(() -> {
-            while (true) {
+            while (!socket.isClosed()) {
                 try {
                     byte[] reponse = getReponse();
                     handle(new PDU(null, reponse), true);
+                } catch (SocketException ex) {
+                    System.out.println("Fermeture du socket");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -97,7 +99,7 @@ public class CouchePhysique extends Couche {
             DatagramPacket packet = new DatagramPacket(buf, buf.length, adresseIPDestination, portDestination);
             socket.send(packet);
         } else {
-            throw new Exception("Mange dla marde");
+            throw new Exception("Impossible d'envoyer la requete.");
         }
     }
 

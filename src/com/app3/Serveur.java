@@ -2,10 +2,10 @@ package com.app3;
 
 import com.app3.couche.*;
 
-import java.net.SocketException;
+import java.io.IOException;
 
 public class Serveur {
-    public static void main(String[] args) throws SocketException {
+    public static void main(String[] args) throws IOException {
         ICouche app = new CoucheApplication();
         ICouche transport = new CoucheTransport();
         ICouche liaison = new CoucheLiaison();
@@ -16,8 +16,10 @@ public class Serveur {
         liaison.setCouchesVoisines(transport, physique);
         physique.setCouchesVoisines(liaison, null);
 
+        // Procedure d'arret manuel
         System.out.println("Serveur mis en marche.");
-
-        // TODO: procedure d'arret SHUTDOWN
+        System.out.println("Appuyer sur entrée pour arreter le serveur...");
+        System.in.read();
+        app.close();
     }
 }
