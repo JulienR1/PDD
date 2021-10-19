@@ -1,8 +1,6 @@
 package com.app3.couche;
 
-import com.app3.Constants;
-import com.app3.CoucheException;
-import com.app3.PDU;
+import com.app3.*;
 
 import java.net.*;
 import java.util.Arrays;
@@ -49,6 +47,8 @@ public class CouchePhysique extends Couche {
                     handle(new PDU(null, reponse), true);
                 } catch (SocketException ex) {
                     System.out.println("Fermeture du socket");
+                } catch (TransmissionErrorException e) {
+                    System.out.println("Arret du transfert, 3 erreurs");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -86,7 +86,7 @@ public class CouchePhysique extends Couche {
     }
 
     public byte[] getReponse() throws Exception {
-        byte[] buf = new byte[200];
+        byte[] buf = new byte[204];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
         socket.receive(packet);
         setIP(packet.getAddress());
@@ -95,7 +95,13 @@ public class CouchePhysique extends Couche {
     }
 
     public void sendRequete(byte[] buf) throws Exception {
-        if (buf.length <= 200) {
+        if (buf.length <= 204) {
+            if (GestionnaireErreur.Instance().getEstErreur()) {
+                int byteToRemove = (int) (Math.random() * (buf.length - 1) + 1);
+                buf[byteToRemove] = 0;
+                System.out.println("Le byte [" + byteToRemove + "] est maintenant un 0.");
+            }
+
             DatagramPacket packet = new DatagramPacket(buf, buf.length, adresseIPDestination, portDestination);
             socket.send(packet);
         } else {

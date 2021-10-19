@@ -5,10 +5,16 @@ import java.util.Arrays;
 public class PDU implements Prototype {
     private String nom;
     private byte[] content;
+    private boolean estValide;
 
     public PDU(String nom, byte[] contenuInitial) {
+        this(nom, contenuInitial, true);
+    }
+
+    public PDU(String nom, byte[] contenuInitial, boolean estValide) {
         this.nom = nom;
         this.content = contenuInitial;
+        this.estValide = estValide;
     }
 
     public byte[] getBytes() {
@@ -17,6 +23,10 @@ public class PDU implements Prototype {
 
     public String getNom() {
         return nom;
+    }
+
+    public boolean getEstValide() {
+        return estValide;
     }
 
     public void ajouterEntete(byte[] entete) {
@@ -39,6 +49,6 @@ public class PDU implements Prototype {
     }
 
     public PDU clone() {
-        return new PDU(this.getNom(), getBytes());
+        return new PDU(this.getNom(), getBytes(), estValide);
     }
 }

@@ -10,7 +10,11 @@ public class CoucheApplication extends Couche {
         if (estReception) {
             sauvegarderFichier(pdu.getBytes(), pdu.getNom());
         } else {
-            coucheSuivante.handle(pdu, false);
+            if (pdu != null) {
+                coucheSuivante.handle(pdu, false);
+            } else {
+                close();
+            }
         }
     }
 
@@ -18,11 +22,11 @@ public class CoucheApplication extends Couche {
         handle(new PDU(nom, fichier), false);
     }
 
-
     public void sauvegarderFichier(byte[] contenuFichier, String nom) {
         try {
             FileOutputStream outputStream = new FileOutputStream(nom);
             outputStream.write(contenuFichier);
+            outputStream.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -19,6 +19,20 @@ public class Statistiques {
     }
 
     public void augmenterEnregistrement(StatRecord enregistrement) {
-        stats.put(enregistrement, stats.get(enregistrement) != null ? stats.get(enregistrement) + 1 : 0);
+        stats.put(enregistrement, 1 + (stats.get(enregistrement) != null ? stats.get(enregistrement) : 0));
     }
+
+    @Override
+    public String toString() {
+        String output = "";
+
+        output += "[\n";
+        for (Map.Entry<StatRecord, Integer> entry : stats.entrySet()) {
+            output += entry.getKey().toString() + ": " + entry.getValue().toString() + "\n";
+        }
+        output += "]";
+
+        return output;
+    }
+
 }

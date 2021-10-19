@@ -26,8 +26,7 @@ public class CoucheLiaison extends Couche {
 
         int crc = CRC.generer(pdu.getBytes());
         ByteBuffer buffer = ByteBuffer.allocate(4).putInt(crc);
-        // TODO: fix crc
-//        pdu.ajouterEntete(buffer.array());
+        pdu.ajouterEntete(buffer.array());
 
         Log.enregistrer("Ajout du CRC au PDU.");
         Statistiques.Instance().augmenterEnregistrement(StatRecord.QUANTITE_ENVOI);
@@ -42,16 +41,17 @@ public class CoucheLiaison extends Couche {
         Statistiques.Instance().augmenterEnregistrement(StatRecord.QUANTITE_RECUE);
 
         try {
-//            TODO: fix crc
-//            byte[] crc = pdu.enleverEntete(32);
+            byte[] crcBytes = pdu.enleverEntete(4);
             byte[] contenu = pdu.getBytes();
 
-//            if (CRC.verifier(crc, contenu)) {
-            return pdu;
-//            }
-            // TODO
-//            Log.enregistrer("CRC invalide");
-//            throw new Exception("CRC invalide");
+            int crc = ByteBuffer.wrap(crcBytes).getInt();
+            if (CRC.verifier(crc, contenu)) {
+                return pdu;
+            }
+            
+            Log.enregistrer("CRC invalide");
+            Statistiques.Instance().augmenterEnregistrement(StatRecord.QUANTITE_ERREUR);
+            return new PDU(pdu.getNom(), pdu.getBytes(), false);
         } catch (Exception ex) {
             Statistiques.Instance().augmenterEnregistrement(StatRecord.QUANTITE_ERREUR);
             throw ex;

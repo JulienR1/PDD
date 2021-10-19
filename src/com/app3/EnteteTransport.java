@@ -26,7 +26,7 @@ public class EnteteTransport {
     private byte[] entete;
 
     public EnteteTransport(TypeTransmission type, int numerotation, int quantitePaquets, int tailleOctets) throws Exception {
-        if (tailleOctets > 180) {
+        if (tailleOctets > 200 - GROSSEUR_ENTETE) {
             throw new Exception("Taille maximale de 200 octets (en-tete compris) depassee.");
         }
 
@@ -38,7 +38,7 @@ public class EnteteTransport {
         System.arraycopy(paddedTypeBytes, 0, entete, 0, 8);
         System.arraycopy(intToBytes(numerotation), 0, entete, 8, 4);
         System.arraycopy(intToBytes(quantitePaquets), 0, entete, 12, 4);
-        System.arraycopy(intToBytes(tailleOctets + GROSSEUR_ENTETE), 0, entete, 16, 4);
+        System.arraycopy(intToBytes(tailleOctets), 0, entete, 16, 4);
     }
 
     public EnteteTransport(PDU paquet) throws Exception {
