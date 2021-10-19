@@ -187,5 +187,6 @@ public class CoucheTransport extends Couche {
     @Override
     public void close() {
         reinitialiserCouche();
+        super.close();
     }
 }

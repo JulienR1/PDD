@@ -14,4 +14,11 @@ public abstract class Couche implements ICouche {
         this.couchePrecedente = precedente;
         this.coucheSuivante = suivante;
     }
+
+    @Override
+    public void close() {
+        if (coucheSuivante != null) {
+            coucheSuivante.close();
+        }
+    }
 }

@@ -55,9 +55,4 @@ public class CoucheLiaison extends Couche {
             throw ex;
         }
     }
-
-    @Override
-    public void close() {
-
-    }
 }

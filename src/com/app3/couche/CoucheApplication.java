@@ -27,8 +27,4 @@ public class CoucheApplication extends Couche {
             ex.printStackTrace();
         }
     }
-
-    @Override
-    public void close() {
-    }
 }

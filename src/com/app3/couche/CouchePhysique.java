@@ -90,5 +90,6 @@ public class CouchePhysique extends Couche {
     @Override
     public void close() {
         socket.close();
+        super.close();
     }
 }
