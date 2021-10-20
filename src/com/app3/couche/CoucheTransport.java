@@ -18,13 +18,22 @@ public class CoucheTransport extends Couche {
         reinitialiserCouche();
     }
 
+    /**
+     * Reinitialise les variables de controle de la couche de transport.
+     */
     private void reinitialiserCouche() {
-        // TODO
         tousLesPaquets = null;
         quantiteErreurs = 0;
         enTransmission = false;
     }
 
+    /**
+     * Gere le trafic provenant des couches adjacentes pour le transferer aux fonctions appropriees.
+     *
+     * @param _pdu
+     * @param estReception Gestion de l'orientation du trafic.
+     * @throws Exception
+     */
     @Override
     public void handle(PDU _pdu, boolean estReception) throws Exception {
         PDU pdu = _pdu.clone();
@@ -37,6 +46,11 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Premier transfert de paquet pour envoyer le nom du fichier.
+     *
+     * @throws Exception
+     */
     private void transmettrePremier() throws Exception {
         if (!enTransmission) {
             coucheSuivante.handle(tousLesPaquets[0], false);
@@ -45,6 +59,11 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Transfert de tous les paquets qui composent le fichier.
+     *
+     * @throws Exception
+     */
     private void transmettreContenu() throws Exception {
         if (enTransmission) {
             for (int i = 1; i < tousLesPaquets.length; i++) {
@@ -56,6 +75,13 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Separe le contenu du fichier en plus petits paquets de maximumm 200 octets (en-tete inclus)
+     * pour transmettre par la suite. Cette operation n'ext executee qu'une seule fois.
+     *
+     * @param pdu
+     * @throws Exception
+     */
     private void subdiviserPaquet(PDU pdu) throws Exception {
         byte[] bytes = pdu.getBytes();
         int taillePaquet = 200 - EnteteTransport.GROSSEUR_ENTETE;
@@ -80,6 +106,12 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Toute reception de paquet est geree et distribuee selon ses proprietes.
+     *
+     * @param paquet
+     * @throws Exception
+     */
     private void recevoir(PDU paquet) throws Exception {
         EnteteTransport entete = new EnteteTransport(paquet);
         PDU clone = paquet.clone();
@@ -95,6 +127,13 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Reception d'un paquet de type TRANSMISSION. Contient l'information pertinente au fichier a transferer.
+     *
+     * @param entete Proprietes associes au paquet.
+     * @param paquet Contenu en bytes du paquet.
+     * @throws Exception
+     */
     private void recevoirTransmission(EnteteTransport entete, PDU paquet) throws Exception {
         // Quitter si on a deja recu le paquet en question
         if (tousLesPaquets != null && tousLesPaquets[entete.getNumerotation() - 1] != null) {
@@ -125,6 +164,69 @@ public class CoucheTransport extends Couche {
         }
     }
 
+    /**
+     * Initialise le transfert de l'information.
+     *
+     * @param entete Proprietes associees au paquet.
+     * @param paquet Contenu du paquet en bytes. Contient le nom du fichier.
+     * @throws Exception
+     */
+    private void recevoirPremierPaquet(EnteteTransport entete, PDU paquet) throws Exception {
+        tousLesPaquets = new PDU[entete.getQuantitePaquets()];
+
+        paquet.enleverEntete(EnteteTransport.GROSSEUR_ENTETE);
+        String nomDuFichier = new String(paquet.getBytes());
+        tousLesPaquets[0] = new PDU(nomDuFichier, paquet.getBytes());
+    }
+
+    /**
+     * Reception de l'information partielle du fichier en transmission.
+     *
+     * @param entete Proprietes associees au paquet.
+     * @param paquet Contenu du paquet en bytes.
+     * @throws Exception
+     */
+    private void recevoirPaquetContenu(EnteteTransport entete, PDU paquet) throws Exception {
+        int numeroPaquetPrecedent = entete.getNumerotation() - 1;
+        if (!verifierNumerotation(numeroPaquetPrecedent)) {
+            demandeRetransmission(numeroPaquetPrecedent);
+            augmenterQuantiteErreurs();
+        }
+
+        tousLesPaquets[entete.getNumerotation() - 1] = paquet;
+    }
+
+    /**
+     * Traitement des accuses de reception. Seul le premier paquet est pertinent pour confirmer le debut du transfert du fichier.
+     *
+     * @param numeroAccuseReception
+     * @throws Exception
+     */
+    private void recevoirAccuseReception(int numeroAccuseReception) throws Exception {
+        if (numeroAccuseReception == 1) {
+            enTransmission = true;
+            transmettreContenu();
+        }
+    }
+
+    /**
+     * Traitement des demandes de retransmission. Envoie a nouveau le paquet si celui-ci existe.
+     *
+     * @param numeroARetransmettre
+     * @throws Exception
+     */
+    private void recevoirDemandeRetransmission(int numeroARetransmettre) throws Exception {
+        PDU paquetAEnvoyer = tousLesPaquets[numeroARetransmettre - 1];
+        coucheSuivante.handle(paquetAEnvoyer, false);
+    }
+
+    /**
+     * A la fin de la reception des paquets, combiner toutes les donnees et le nom du fichier ensembles
+     * pour former un objet coherent.
+     *
+     * @return Un objet contenant toutes les informations necessaires pour reconstruire un fichier.
+     * @throws Exception
+     */
     private PDU reconstruireFichier() throws Exception {
         String nomFichier = tousLesPaquets[0].getNom();
         int[] tailles = new int[tousLesPaquets.length];
@@ -147,24 +249,56 @@ public class CoucheTransport extends Couche {
         return new PDU(nomFichier, contenuFichier);
     }
 
-    private void recevoirPremierPaquet(EnteteTransport entete, PDU paquet) throws Exception {
-        tousLesPaquets = new PDU[entete.getQuantitePaquets()];
-
-        paquet.enleverEntete(EnteteTransport.GROSSEUR_ENTETE);
-        String nomDuFichier = new String(paquet.getBytes());
-        tousLesPaquets[0] = new PDU(nomDuFichier, paquet.getBytes());
-    }
-
-    private void recevoirPaquetContenu(EnteteTransport entete, PDU paquet) throws Exception {
-        int numeroPaquetPrecedent = entete.getNumerotation() - 1;
-        if (!verifierNumerotation(numeroPaquetPrecedent)) {
-            demandeRetransmission(numeroPaquetPrecedent);
-            augmenterQuantiteErreurs();
+    /**
+     * Valide si un paquet a ete recu ou non.
+     *
+     * @param numerotationAValider
+     * @return
+     */
+    private boolean verifierNumerotation(int numerotationAValider) {
+        if (numerotationAValider == 1) {
+            return true;
         }
-
-        tousLesPaquets[entete.getNumerotation() - 1] = paquet;
+        return tousLesPaquets[numerotationAValider - 1] != null;
     }
 
+    /**
+     * Envoie un accuse de reception pour un numero de paquet donne.
+     *
+     * @param numeroRecu
+     * @throws Exception
+     */
+    private void accuseReception(int numeroRecu) throws Exception {
+        repondre(numeroRecu, TypeTransmission.ACCUSE_RECEPTION);
+    }
+
+    /**
+     * Envoie une demande de retransmission pour un numero de paquet donne.
+     *
+     * @param numeroARedemander
+     * @throws Exception
+     */
+    private void demandeRetransmission(int numeroARedemander) throws Exception {
+        repondre(numeroARedemander, TypeTransmission.DEMANDE_RETRANSMISSION);
+    }
+
+    /**
+     * Envoie d'une reponse generique.
+     *
+     * @param numeroPaquet Paquet en question dans la reponse.
+     * @param type         Type de transmission a effectuer.
+     * @throws Exception
+     */
+    private void repondre(int numeroPaquet, TypeTransmission type) throws Exception {
+        EnteteTransport entete = new EnteteTransport(type, numeroPaquet, tousLesPaquets != null ? tousLesPaquets.length : 0, 0);
+        coucheSuivante.handle(new PDU(null, entete.getBytes()), false);
+    }
+
+    /**
+     * Augmente la quantite d'erreurs survenues.
+     *
+     * @throws TransmissionErrorException Si 3 erreurs ou plus
+     */
     private void augmenterQuantiteErreurs() throws TransmissionErrorException {
         quantiteErreurs++;
         if (quantiteErreurs >= 3) {
@@ -173,40 +307,10 @@ public class CoucheTransport extends Couche {
         }
     }
 
-    private void recevoirAccuseReception(int numeroAccuseReception) throws Exception {
-        if (numeroAccuseReception == 1) {
-            enTransmission = true;
-            transmettreContenu();
-        }
-    }
-
-    private void recevoirDemandeRetransmission(int numeroARetransmettre) throws Exception {
-        PDU paquetAEnvoyer = tousLesPaquets[numeroARetransmettre - 1];
-        coucheSuivante.handle(paquetAEnvoyer, false);
-    }
-
-    private boolean verifierNumerotation(int numerotationAValider) {
-        if (numerotationAValider == 1) {
-            return true;
-        }
-        return tousLesPaquets[numerotationAValider - 1] != null;
-    }
-
-
-    private void accuseReception(int numeroRecu) throws Exception {
-        repondre(numeroRecu, TypeTransmission.ACCUSE_RECEPTION);
-    }
-
-    private void demandeRetransmission(int numeroARedemander) throws Exception {
-        repondre(numeroARedemander, TypeTransmission.DEMANDE_RETRANSMISSION);
-    }
-
-    private void repondre(int numeroPaquet, TypeTransmission type) throws Exception {
-        EnteteTransport entete = new EnteteTransport(type, numeroPaquet, tousLesPaquets != null ? tousLesPaquets.length : 0, 0);
-        coucheSuivante.handle(new PDU(null, entete.getBytes()), false);
-    }
-
     @Override
+    /**
+     * Ferme et reinitialise la couche.
+     */
     public void close() {
         reinitialiserCouche();
         super.close();

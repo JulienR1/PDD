@@ -39,6 +39,10 @@ public class CouchePhysique extends Couche {
         initialiserThreadReponses();
     }
 
+    /**
+     * Permet de demarrer l'ecoute de messages sur le socket.
+     * Est un thread separe, n'est donc pas bloquant.
+     */
     private void initialiserThreadReponses() {
         new Thread(() -> {
             while (!socket.isClosed()) {
@@ -57,6 +61,9 @@ public class CouchePhysique extends Couche {
     }
 
     @Override
+    /**
+     * Transmet l'information provenant de d'autres couches aux fonctions appropriees.
+     */
     public void handle(PDU pdu, boolean estReception) throws Exception {
         if (estReception) {
             couchePrecedente.handle(pdu, true);
@@ -65,14 +72,31 @@ public class CouchePhysique extends Couche {
         }
     }
 
+    /**
+     * Selectionne le port avec lequel communiquer.
+     *
+     * @param port
+     */
     private void setPort(int port) {
         this.portDestination = port;
     }
 
+    /**
+     * Selectionne l'adresse IP avec laquelle communiquer.
+     *
+     * @param ip
+     */
     private void setIP(InetAddress ip) {
         this.adresseIPDestination = ip;
     }
 
+    /**
+     * Selectionne l'adresse IP avec laquelle communiquer.
+     * Doit respecter le format xxx.xxx.xxx.xxx.
+     *
+     * @param ip
+     * @throws CoucheException
+     */
     private void setIP(String ip) throws CoucheException {
         try {
             if (Pattern.matches("\\b\\d{1,3}.\\d{1,3}.\\d{1,3}.\\d{1,3}\\b", ip)) {
@@ -85,6 +109,12 @@ public class CouchePhysique extends Couche {
         }
     }
 
+    /**
+     * Lit le prochain paquet disponible sur l'adresse IP et le port d'ecoute.
+     *
+     * @return
+     * @throws Exception
+     */
     public byte[] getReponse() throws Exception {
         byte[] buf = new byte[204];
         DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -94,6 +124,12 @@ public class CouchePhysique extends Couche {
         return Arrays.copyOf(packet.getData(), packet.getLength());
     }
 
+    /**
+     * Envoie un paquet sur l'adresse IP et le port specifie.
+     *
+     * @param buf
+     * @throws Exception
+     */
     public void sendRequete(byte[] buf) throws Exception {
         if (buf.length <= 204) {
             if (GestionnaireErreur.Instance().getEstErreur()) {
@@ -109,6 +145,9 @@ public class CouchePhysique extends Couche {
         }
     }
 
+    /**
+     * Termine la couche et ferme la connexion socket.
+     */
     @Override
     public void close() {
         socket.close();
