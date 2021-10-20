@@ -5,10 +5,19 @@ import java.util.Scanner;
 public class Menu {
     private ChoixMenu[] choix;
 
+    /**
+     * @param choix Toutes les options a presenter a l'utilisateur.
+     */
     public Menu(ChoixMenu[] choix) {
         this.choix = choix;
     }
 
+    /**
+     * Affiche le menu un nombre maximal de fois ou jusqu'a ce qu'un choix valide soit fait.
+     *
+     * @return Le choix de l'utilisateur.
+     * @throws MenuException
+     */
     public int offrir() throws MenuException {
         int tentatives = 0;
 
@@ -36,6 +45,9 @@ public class Menu {
         }
     }
 
+    /**
+     * Affiche le menu ainsi que tous ses choix dans la console de l'utilisateur.
+     */
     private void afficher() {
         System.out.println("--- Menu ---");
         for (int i = 0; i < choix.length; i++) {

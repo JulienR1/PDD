@@ -25,6 +25,15 @@ public class EnteteTransport {
 
     private byte[] entete;
 
+    /**
+     * Objet facilitateur pour generer un en-tete conforme pour la couche transport.
+     *
+     * @param type            Type de paquet.
+     * @param numerotation    Identifiant du paquet en cours.
+     * @param quantitePaquets Quantite de paquets dans le message au complet.
+     * @param tailleOctets    Taille du paquet en cours en bytes.
+     * @throws Exception
+     */
     public EnteteTransport(TypeTransmission type, int numerotation, int quantitePaquets, int tailleOctets) throws Exception {
         if (tailleOctets > 200 - GROSSEUR_ENTETE) {
             throw new Exception("Taille maximale de 200 octets (en-tete compris) depassee.");
@@ -41,6 +50,12 @@ public class EnteteTransport {
         System.arraycopy(intToBytes(tailleOctets), 0, entete, 16, 4);
     }
 
+    /**
+     * Objet facilitateur pour decoder l'en-tete recu.
+     *
+     * @param paquet
+     * @throws Exception
+     */
     public EnteteTransport(PDU paquet) throws Exception {
         PDU clone = paquet.clone();
         entete = clone.enleverEntete(GROSSEUR_ENTETE);
@@ -50,10 +65,16 @@ public class EnteteTransport {
         taille = ByteBuffer.wrap(Arrays.copyOfRange(entete, 16, 20)).getInt();
     }
 
+    /**
+     * @return Les bytes contenues dans l'en-tete.
+     */
     public byte[] getBytes() {
         return entete;
     }
 
+    /**
+     * @return Le type de paquet.
+     */
     public TypeTransmission getType() {
         for (Map.Entry<TypeTransmission, String> entry : types.entrySet()) {
             if (entry.getValue().equals(type)) {
@@ -63,18 +84,33 @@ public class EnteteTransport {
         return null;
     }
 
+    /**
+     * @return L'identifiant du paquet en cours.
+     */
     public int getNumerotation() {
         return numerotation;
     }
 
+    /**
+     * @return Le nombre de paquets dans la transmission.
+     */
     public int getQuantitePaquets() {
         return quantitePaquets;
     }
 
+    /**
+     * @return La grosseur du paquet en cours en bytes.
+     */
     public int getTaille() {
         return taille;
     }
 
+    /**
+     * Fonction facilitatrice pour convertir un entier en octets.
+     *
+     * @param num
+     * @return
+     */
     private byte[] intToBytes(int num) {
         return ByteBuffer.allocate(4).putInt(num).array();
     }

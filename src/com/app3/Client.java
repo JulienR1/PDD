@@ -17,6 +17,12 @@ public class Client {
                     new ChoixMenu("Quitter", () -> quitter())
             };
 
+    /**
+     * Porgramme pour envoyer un fichier vers le serveur.
+     *
+     * @param arg
+     * @throws MenuException
+     */
     public static void main(String[] arg) throws MenuException {
         Menu menu = new Menu(choixMenu);
 
@@ -29,6 +35,14 @@ public class Client {
         }
     }
 
+    /**
+     * Construit une chaine a double sens pour l'ordre des couches selon le modele OSI/ISO.
+     *
+     * @param ipServeur
+     * @return
+     * @throws SocketException
+     * @throws CoucheException
+     */
     private static CoucheApplication initialiserCouches(String ipServeur) throws SocketException, CoucheException {
         CoucheApplication app = new CoucheApplication();
         ICouche transport = new CoucheTransport();
@@ -43,6 +57,12 @@ public class Client {
         return app;
     }
 
+    /**
+     * Selection et envoie d'un fichier vers un serveur specifique.
+     *
+     * @param avecErreurs Insere manuellement des erreurs aleatoires dans la couche physique.
+     * @return
+     */
     private static boolean televerser(boolean avecErreurs) {
         GestionnaireErreur.Instance().setEstErreur(avecErreurs);
         try {
@@ -69,6 +89,11 @@ public class Client {
         return true;
     }
 
+    /**
+     * Fermeture du programme client.
+     *
+     * @return
+     */
     private static boolean quitter() {
         System.out.println(Statistiques.Instance().toString());
         System.out.println("Fermeture en cours..");

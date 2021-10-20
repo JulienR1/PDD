@@ -11,6 +11,9 @@ public class Statistiques {
         stats = new HashMap<StatRecord, Integer>();
     }
 
+    /**
+     * @return Singleton Statistiques.
+     */
     public static Statistiques Instance() {
         if (Statistiques.instance == null) {
             Statistiques.instance = new Statistiques();
@@ -18,11 +21,19 @@ public class Statistiques {
         return Statistiques.instance;
     }
 
+    /**
+     * Incremente la valeur de 1.
+     *
+     * @param enregistrement La valeur a incrementer.
+     */
     public void augmenterEnregistrement(StatRecord enregistrement) {
         stats.put(enregistrement, 1 + (stats.get(enregistrement) != null ? stats.get(enregistrement) : 0));
     }
 
     @Override
+    /**
+     * Genere une chaine de caracteres lisibles pour les statistiques.
+     */
     public String toString() {
         String output = "";
 
